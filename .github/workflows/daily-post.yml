@@ -35,3 +35,27 @@ jobs:
         run: |
           git config user.name "health-blog-bot"
           git config user.email "actions@github.com"
+          git add _posts
+          git commit -m "自動生成: $(date +'%Y-%m-%d')の記事" || echo "変更なし"
+          git push
+
+      - name: Rubyをセットアップ
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.1"
+          bundler-cache: true
+
+      - name: Jekyllでビルド
+        run: bundle exec jekyll build
+
+      - name: GitHub Pagesの準備
+        uses: actions/configure-pages@v5
+
+      - name: ビルド結果をアップロード
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "_site"
+
+      - name: GitHub Pagesにデプロイ
+        id: deployment
+        uses: actions/deploy-pages@v4
