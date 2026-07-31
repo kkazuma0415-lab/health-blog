@@ -1,0 +1,11 @@
+title: 健康ブログ
+description: 毎日の健康習慣を発信するブログ
+theme: minima
+plugins:
+  - jekyll-feed
+
+# URL設定(あとでGitHubユーザー名/リポジトリ名に合わせて自動反映されます)
+baseurl: "/health-blog"
+url: "https://kkazuma0415-lab.github.io"
+
+markdown: kramdown
