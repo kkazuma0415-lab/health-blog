@@ -1,7 +1,14 @@
 """
 毎日の健康ブログ記事を自動生成し、_posts フォルダに保存するスクリプト。
 GitHub Actions から実行される想定。
-環境変数 ANTHROPIC_API_KEY, PEXELS_API_KEY が必要。
+
+曜日によって2つのモードを自動切り替えする:
+- 商品紹介モード (月・水・金・土): products.json から商品を1つ選び、
+  購入につながるレビュー記事をClaude APIで生成する。
+- 健康情報モード (火・木・日): これまで通りテーマに沿った健康情報記事を生成し、
+  Pexelsからアイキャッチ画像を取得する。
+
+環境変数 ANTHROPIC_API_KEY, PEXELS_API_KEY(健康情報モードのみ必須) が必要。
 """
 
 import os
@@ -16,7 +23,15 @@ API_URL = "https://api.anthropic.com/v1/messages"
 PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY", "")
 PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search"
 
-# テーマ(日本語)と、画像検索用の英語キーワードのペア
+# 曜日番号: Monday=0 ... Sunday=6
+PRODUCT_DAYS = {0, 2, 4, 5}  # 月・水・金・土
+HEALTH_DAYS = {1, 3, 6}      # 火・木・日
+
+today = datetime.date.today()
+weekday = today.weekday()
+date_str = today.strftime("%Y-%m-%d")
+
+# 健康情報モード用テーマ(日本語)と、画像検索用の英語キーワードのペア
 TOPICS = [
     ("睡眠の質を上げる工夫", "peaceful sleep bedroom"),
     ("毎日の食事でできる健康習慣", "healthy meal vegetables"),
@@ -28,43 +43,31 @@ TOPICS = [
     ("季節の変わり目の体調管理", "seasonal change health"),
 ]
 
-# 日付に応じてテーマを一つ選ぶ(単純に日数で割り当てローテーション)
-today = datetime.date.today()
-topic, image_query = TOPICS[today.toordinal() % len(TOPICS)]
+PRODUCTS_FILE = os.path.join(os.path.dirname(__file__), "..", "products.json")
+ROTATION_FILE = os.path.join(os.path.dirname(__file__), "..", ".product_rotation")
 
-prompt = f"""あなたは健康分野の専門ライターです。
-以下の条件で日本語のブログ記事を1本書いてください。
 
-テーマ:{topic}
-文字数:800〜1200字程度
-構成:タイトル(# 見出し)、導入、見出し付きの本文(##)、まとめ
-文体:丁寧で分かりやすく、具体的で今日から実践できる内容にすること
-出力形式:Markdownの本文のみ。前置きや説明文は一切つけないこと。
-"""
-
-body = {
-    "model": "claude-sonnet-4-6",
-    "max_tokens": 2000,
-    "messages": [{"role": "user", "content": prompt}],
-}
-
-req = urllib.request.Request(
-    API_URL,
-    data=json.dumps(body).encode("utf-8"),
-    headers={
-        "Content-Type": "application/json",
-        "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
-    },
-    method="POST",
-)
-
-with urllib.request.urlopen(req) as res:
-    data = json.loads(res.read().decode("utf-8"))
-
-article_md = "".join(
-    block.get("text", "") for block in data.get("content", []) if block.get("type") == "text"
-).strip()
+def call_claude(prompt: str, max_tokens: int = 2000) -> str:
+    body = {
+        "model": "claude-sonnet-4-6",
+        "max_tokens": max_tokens,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    req = urllib.request.Request(
+        API_URL,
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY,
+            "anthropic-version": "2023-06-01",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(req) as res:
+        data = json.loads(res.read().decode("utf-8"))
+    return "".join(
+        block.get("text", "") for block in data.get("content", []) if block.get("type") == "text"
+    ).strip()
 
 
 def fetch_featured_image(query: str) -> str:
@@ -84,29 +87,142 @@ def fetch_featured_image(query: str) -> str:
     return ""
 
 
-image_url = fetch_featured_image(image_query)
+def next_product() -> dict:
+    """products.jsonから、前回の続きの商品を1つ選ぶ(ローテーション)。"""
+    with open(PRODUCTS_FILE, encoding="utf-8") as f:
+        products = json.load(f)
+    if not products:
+        raise RuntimeError("products.json に商品が登録されていません。")
 
-# 記事本文からタイトル行(# ...)を抜き出す
-title_match = re.search(r"^#\s+(.+)$", article_md, re.MULTILINE)
-title = title_match.group(1).strip() if title_match else topic
+    idx = 0
+    if os.path.exists(ROTATION_FILE):
+        try:
+            with open(ROTATION_FILE, encoding="utf-8") as f:
+                idx = int(f.read().strip())
+        except (ValueError, OSError):
+            idx = 0
 
-# ファイル名用にタイトルをスラッグ化(日本語はそのまま使い、記号だけ除去)
-slug = re.sub(r"[^\w぀-ヿ一-鿿]+", "-", title).strip("-")
-date_str = today.strftime("%Y-%m-%d")
-filename = f"_posts/{date_str}-{slug or 'health-post'}.md"
+    product = products[idx % len(products)]
+    with open(ROTATION_FILE, "w", encoding="utf-8") as f:
+        f.write(str((idx + 1) % len(products)))
+    return product
 
-image_line = f"image: \"{image_url}\"\n" if image_url else ""
 
-front_matter = f"""---
-layout: post
-title: "{title}"
-date: {date_str} 07:00:00 +0900
-categories: [health]
-{image_line}---
+def build_slug(title: str) -> str:
+    slug = re.sub(r"[^\w぀-ヿ一-鿿]+", "-", title).strip("-")
+    return slug or "post"
 
+
+def write_post(filename: str, front_matter: dict, body: str):
+    lines = ["---"]
+    for key, value in front_matter.items():
+        if value is None:
+            continue
+        lines.append(f'{key}: "{value}"' if isinstance(value, str) else f"{key}: {value}")
+    lines.append("---")
+    lines.append("")
+    content = "\n".join(lines) + body + "\n"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"Created: {filename}")
+
+
+def generate_product_post():
+    product = next_product()
+
+    prompt = f"""あなたは健康・美容ジャンルのレビューライターです。
+以下の商品について、実際に使ってみたレビュー記事を書いてください。
+
+商品名: {product['name']}
+特徴・メモ: {product['notes']}
+関連キーワード: {product['keywords']}
+
+条件:
+- 文字数: 900〜1300字程度
+- 構成: タイトル(# 見出し)、悩み提起の導入、商品の説明、
+  「使ってみた感想」(具体的な体感を交えて、リアルな一人称の文章で)、
+  良かった点・気になった点(正直に)、こんな人におすすめ、まとめ
+- 商品説明や体験談の中に、それとなく購入への興味を持たせる流れを作ること
+- 誇大な効果を断定せず、個人の感想であることが伝わる書き方にすること
+- 出力形式: Markdownの本文のみ。前置きや説明文は一切つけないこと。
 """
+    article_md = call_claude(prompt)
 
-with open(filename, "w", encoding="utf-8") as f:
-    f.write(front_matter + article_md + "\n")
+    title_match = re.search(r"^#\s+(.+)$", article_md, re.MULTILINE)
+    title = title_match.group(1).strip() if title_match else product["name"]
+    # 本文からタイトル行を除去(front matterのtitleと重複させないため)
+    article_md = re.sub(r"^#\s+.+\n?", "", article_md, count=1, flags=re.MULTILINE)
 
-print(f"Created: {filename}")
+    slug = build_slug(title)
+    filename = f"_posts/{date_str}-{slug}.md"
+
+    front_matter = {
+        "layout": "post",
+        "title": title,
+        "date": f"{date_str} 07:00:00 +0900",
+        "categories": None,
+        "category": "review",
+        "affiliate": True,
+        "product_link": product["affiliate_url"],
+        "image": product["image"],
+    }
+    # categoriesキーは使わずcategoryのみ使う(手動記事と揃える)
+    front_matter.pop("categories", None)
+
+    body = "\n"
+    body += "> ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。\n\n"
+    body += article_md.strip() + "\n\n"
+    body += f"## 商品情報\n\n"
+    body += f"| 項目 | 内容 |\n|---|---|\n"
+    body += f"| 商品名 | {product['name']} |\n"
+    body += f"| 定価 | {product['price']} |\n"
+    body += f"| 会員価格 | {product['member_price']} |\n\n"
+    body += f"**→ [公式サイトで詳しく見る]({product['affiliate_url']})**\n\n"
+    if product.get("qr_image"):
+        body += (
+            f'<p style="font-size:0.85em;color:#666;">スマホでQRコードを読み取って商品ページへ<br>\n'
+            f'<img src="{product["qr_image"]}" alt="{product["name"]} 商品ページQRコード" width="120"></p>\n'
+        )
+
+    write_post(filename, front_matter, body)
+
+
+def generate_health_post():
+    topic, image_query = TOPICS[today.toordinal() % len(TOPICS)]
+
+    prompt = f"""あなたは健康分野の専門ライターです。
+以下の条件で日本語のブログ記事を1本書いてください。
+
+テーマ: {topic}
+文字数: 800〜1200字程度
+構成: タイトル(# 見出し)、導入、見出し付きの本文(##)、まとめ
+文体: 丁寧で分かりやすく、具体的で今日から実践できる内容にすること
+出力形式: Markdownの本文のみ。前置きや説明文は一切つけないこと。
+"""
+    article_md = call_claude(prompt)
+
+    title_match = re.search(r"^#\s+(.+)$", article_md, re.MULTILINE)
+    title = title_match.group(1).strip() if title_match else topic
+    article_md = re.sub(r"^#\s+.+\n?", "", article_md, count=1, flags=re.MULTILINE)
+
+    image_url = fetch_featured_image(image_query)
+    slug = build_slug(title)
+    filename = f"_posts/{date_str}-{slug}.md"
+
+    front_matter = {
+        "layout": "post",
+        "title": title,
+        "date": f"{date_str} 07:00:00 +0900",
+        "category": "health",
+        "image": image_url or None,
+    }
+
+    write_post(filename, front_matter, "\n" + article_md.strip() + "\n")
+
+
+if __name__ == "__main__":
+    if weekday in PRODUCT_DAYS:
+        generate_product_post()
+    else:
+        generate_health_post()
