@@ -108,9 +108,32 @@ def next_product() -> dict:
     return product
 
 
+def youtube_embed_id(url: str) -> str:
+    """youtu.be/xxx や youtube.com/watch?v=xxx から動画IDを取り出す。"""
+    match = re.search(r"(?:youtu\.be/|youtube\.com/watch\?v=)([\w-]+)", url)
+    return match.group(1) if match else ""
+
+
 def build_slug(title: str) -> str:
     slug = re.sub(r"[^\w぀-ヿ一-鿿]+", "-", title).strip("-")
     return slug or "post"
+
+
+def build_image_gallery(images: list) -> str:
+    """複数画像を横スクロールで見られるギャラリーのHTMLを組み立てる。"""
+    if not images:
+        return ""
+    items = "".join(
+        f'<img src="{src}" alt="商品画像" '
+        f'style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">\n'
+        for src in images
+    )
+    return (
+        '<div style="display:flex; gap:0.75em; overflow-x:auto; padding:0.5em 0; '
+        'margin-bottom:1.5em; scroll-snap-type:x mandatory;">\n'
+        f"{items}"
+        "</div>\n\n"
+    )
 
 
 def write_post(filename: str, front_matter: dict, body: str):
@@ -143,6 +166,7 @@ def generate_product_post():
 - 構成: タイトル(# 見出し)、悩み提起の導入、商品の説明、
   「使ってみた感想」(具体的な体感を交えて、リアルな一人称の文章で)、
   良かった点・気になった点(正直に)、こんな人におすすめ、まとめ
+- 「特徴・メモ」の情報は、箇条書きの羅列にせず、自然な文章の中に溶け込ませること
 - 商品説明や体験談の中に、それとなく購入への興味を持たせる流れを作ること
 - 誇大な効果を断定せず、個人の感想であることが伝わる書き方にすること
 - 出力形式: Markdownの本文のみ。前置きや説明文は一切つけないこと。
@@ -161,18 +185,29 @@ def generate_product_post():
         "layout": "post",
         "title": title,
         "date": f"{date_str} 07:00:00 +0900",
-        "categories": None,
         "category": "review",
         "affiliate": True,
         "product_link": product["affiliate_url"],
-        "image": product["image"],
+        "image": (product.get("images") or [None])[0],
     }
-    # categoriesキーは使わずcategoryのみ使う(手動記事と揃える)
-    front_matter.pop("categories", None)
 
     body = "\n"
     body += "> ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。\n\n"
+    body += build_image_gallery(product.get("images", []))
     body += article_md.strip() + "\n\n"
+
+    video_id = youtube_embed_id(product.get("video", ""))
+    if video_id:
+        body += "## 商品紹介動画\n\n"
+        body += (
+            f'<div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; '
+            f'border-radius:8px; margin-bottom:1.5em;">\n'
+            f'  <iframe src="https://www.youtube.com/embed/{video_id}" '
+            f'style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;" '
+            f'allowfullscreen loading="lazy"></iframe>\n'
+            f"</div>\n\n"
+        )
+
     body += f"## 商品情報\n\n"
     body += f"| 項目 | 内容 |\n|---|---|\n"
     body += f"| 商品名 | {product['name']} |\n"
