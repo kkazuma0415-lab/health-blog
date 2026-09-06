@@ -1,0 +1,30 @@
+---
+layout: default
+---
+<div class="home">
+
+  {% if page.title %}
+    <h1 class="page-heading">{{ page.title }}</h1>
+  {% endif %}
+
+  <p>{{ content }}</p>
+
+  <h2>Posts</h2>
+
+  <ul class="post-list">
+    {% for post in site.posts %}
+    <li style="margin-bottom: 1.5em; list-style: none;">
+      <a href="{{ post.url | relative_url }}" style="display:flex; gap:1em; align-items:center; text-decoration:none; color:inherit;">
+        {% if post.image %}
+        <img src="{{ post.image }}" alt="{{ post.title | escape }}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; flex-shrink:0;">
+        {% endif %}
+        <div>
+          <span class="post-meta" style="color:#f0a868;">{{ post.date | date: "%b %-d, %Y" }}</span><br>
+          <span style="font-size:1.1em; font-weight:600;">{{ post.title }}</span>
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+
+</div>

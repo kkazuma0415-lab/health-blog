@@ -1,0 +1,25 @@
+---
+layout: default
+---
+<article class="post h-entry">
+
+  <header class="post-header">
+    <h1 class="post-title p-name">{{ page.title | escape }}</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}">
+        {{ page.date | date: "%Y年%m月%d日" }}
+      </time>
+    </p>
+  </header>
+
+  {% if page.image %}
+  <div class="featured-image" style="margin: 1.5em 0;">
+    <img src="{{ page.image }}" alt="{{ page.title | escape }}" style="width:100%; max-height:400px; object-fit:cover; border-radius:8px;">
+  </div>
+  {% endif %}
+
+  <div class="post-content e-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+</article>
