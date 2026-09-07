@@ -27,7 +27,10 @@ PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search"
 PRODUCT_DAYS = {0, 2, 4, 5}  # 月・水・金・土
 HEALTH_DAYS = {1, 3, 6}      # 火・木・日
 
-today = datetime.date.today()
+# GitHub Actionsのサーバー時刻はUTCだが、曜日判定・日付はJST基準で行う
+# (UTC基準のままだと、日本時間の曜日と1日ズレて商品/健康の判定が狂うため)
+JST = datetime.timezone(datetime.timedelta(hours=9))
+today = datetime.datetime.now(JST).date()
 weekday = today.weekday()
 date_str = today.strftime("%Y-%m-%d")
 
