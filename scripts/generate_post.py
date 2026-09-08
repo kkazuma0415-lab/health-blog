@@ -49,6 +49,18 @@ TOPICS = [
 PRODUCTS_FILE = os.path.join(os.path.dirname(__file__), "..", "products.json")
 ROTATION_FILE = os.path.join(os.path.dirname(__file__), "..", ".product_rotation")
 
+# サイトのbaseurl(_config.ymlの設定に合わせる)。
+# products.json内の画像パスはサイトルート相対(/assets/...)で書かれているため、
+# 実際のURLにするにはこのbaseurlを前に付ける必要がある。
+BASEURL = "/health-blog"
+
+
+def site_path(path: str) -> str:
+    """サイトルート相対パスにbaseurlを付与する。外部URL(http/https)はそのまま返す。"""
+    if not path or path.startswith("http"):
+        return path
+    return BASEURL + path
+
 
 def call_claude(prompt: str, max_tokens: int = 2000) -> str:
     body = {
@@ -127,7 +139,7 @@ def build_image_gallery(images: list) -> str:
     if not images:
         return ""
     items = "".join(
-        f'<img src="{src}" alt="商品画像" '
+        f'<img src="{site_path(src)}" alt="商品画像" '
         f'style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">\n'
         for src in images
     )
@@ -220,7 +232,7 @@ def generate_product_post():
     if product.get("qr_image"):
         body += (
             f'<p style="font-size:0.85em;color:#666;">スマホでQRコードを読み取って商品ページへ<br>\n'
-            f'<img src="{product["qr_image"]}" alt="{product["name"]} 商品ページQRコード" width="120"></p>\n'
+            f'<img src="{site_path(product["qr_image"])}" alt="{product["name"]} 商品ページQRコード" width="120"></p>\n'
         )
 
     write_post(filename, front_matter, body)
