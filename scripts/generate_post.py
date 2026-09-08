@@ -271,8 +271,18 @@ def generate_health_post():
     write_post(filename, front_matter, "\n" + article_md.strip() + "\n")
 
 
+def post_exists_for_today() -> bool:
+    """今日の日付から始まる記事が既に_postsに存在するか確認する(重複投稿防止)。"""
+    posts_dir = os.path.join(os.path.dirname(__file__), "..", "_posts")
+    if not os.path.isdir(posts_dir):
+        return False
+    return any(name.startswith(date_str + "-") for name in os.listdir(posts_dir))
+
+
 if __name__ == "__main__":
-    if weekday in PRODUCT_DAYS:
+    if post_exists_for_today():
+        print(f"{date_str}の記事は既に存在するため、生成をスキップします。")
+    elif weekday in PRODUCT_DAYS:
         generate_product_post()
     else:
         generate_health_post()
