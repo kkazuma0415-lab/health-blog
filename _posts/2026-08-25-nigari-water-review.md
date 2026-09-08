@@ -46,7 +46,7 @@ image: "/assets/images/nigari-water-package-cropped.jpg"
 |---|---|
 | 商品名 | ICHI にがりウォーター |
 | 定価 | 1,815円（税込） |
-| 会員価格 | 1,452円（税込） |
+| 会員価格 | 1,724円（税込）（会員登録で5%OFF） |
 
 **→ [公式サイトで詳しく見る](https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9c850c)**
 
