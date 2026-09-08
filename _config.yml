@@ -8,8 +8,12 @@ plugins:
 # 何も指定しないとJekyll/minimaの仕組み上、ホームページ(index.md)自身が
 # 「他のページへのリンク」として自動的にヘッダーの右側にも表示されてしまうため、
 # 実在しないダミーのパスを指定してリンクが1つも生成されないようにしている。
+# (minimaのバージョンによって参照するキーが異なるため両方指定)
 header_pages:
   - "_no_header_links"
+minima:
+  nav_pages:
+    - "_no_header_links"
 
 # URL設定(あとでGitHubユーザー名/リポジトリ名に合わせて自動反映されます)
 baseurl: "/health-blog"
