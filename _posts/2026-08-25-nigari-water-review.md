@@ -9,7 +9,7 @@ image: "/assets/images/nigari-water-package-cropped.jpg"
 
 > ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。
 
-![ICHIにがりウォーター パッケージ](/assets/images/nigari-water-package-cropped.jpg)
+![ICHIにがりウォーター パッケージ](/health-blog/assets/images/nigari-water-package-cropped.jpg)
 *ICHI にがりウォーター（詰め替えパウチタイプ）*
 
 「ただお湯につかるだけ」で満足できていますか？
@@ -49,4 +49,4 @@ image: "/assets/images/nigari-water-package-cropped.jpg"
 **→ [公式サイトで詳しく見る](https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9c850c)**
 
 <p style="font-size:0.85em;color:#666;">スマホでQRコードを読み取って商品ページへ<br>
-<img src="/assets/images/nigari-water-qr.png" alt="ICHIにがりウォーター 商品ページQRコード" width="120"></p>
+<img src="/health-blog/assets/images/nigari-water-qr.png" alt="ICHIにがりウォーター 商品ページQRコード" width="120"></p>
