@@ -5,6 +5,8 @@ GitHub Actions から実行される想定。
 曜日によって2つのモードを自動切り替えする:
 - 商品紹介モード (月・水・金・土): products.json から商品を1つ選び、
   購入につながるレビュー記事をClaude APIで生成する。
+  「使ってみた」記事(tried: true)と「気になる商品紹介」記事(tried: false)を
+  投稿ごとに必ず交互に出す(次項参照)。
 - 健康情報モード (火・木・日): これまで通りテーマに沿った健康情報記事を生成し、
   Pexelsからアイキャッチ画像を取得する。
 
@@ -102,25 +104,77 @@ def fetch_featured_image(query: str) -> str:
     return ""
 
 
-def next_product() -> dict:
-    """products.jsonから、前回の続きの商品を1つ選ぶ(ローテーション)。"""
+def _load_rotation_state() -> dict:
+    """商品ローテーションの状態(各プールでの位置、次に使うスタイル)を読み込む。"""
+    default_state = {"tried_idx": 0, "untried_idx": 0, "next_style": "tried"}
+    if not os.path.exists(ROTATION_FILE):
+        return default_state
+    try:
+        with open(ROTATION_FILE, encoding="utf-8") as f:
+            content = f.read().strip()
+        if not content:
+            return default_state
+        if content.lstrip("-").isdigit():
+            # 旧形式(単なる整数のインデックス)からの移行。位置だけ引き継ぐ。
+            default_state["tried_idx"] = int(content)
+            return default_state
+        state = json.loads(content)
+        for key, value in default_state.items():
+            state.setdefault(key, value)
+        return state
+    except (ValueError, OSError, json.JSONDecodeError):
+        return default_state
+
+
+def _save_rotation_state(state: dict):
+    with open(ROTATION_FILE, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False)
+
+
+def next_product() -> tuple:
+    """products.jsonから商品を1つ選ぶ。
+
+    「使ってみた」記事(tried: true)と「気になる商品紹介」記事(tried: false)を、
+    商品紹介の投稿ごとに必ず交互に出すようローテーションする。
+    どちらか一方のプールが空(該当する商品がまだ無い)場合は、
+    商品が揃うまで存在する方のスタイルを使い続ける。
+
+    戻り値: (商品dict, スタイル文字列 "tried" または "untried")
+    """
     with open(PRODUCTS_FILE, encoding="utf-8") as f:
         products = json.load(f)
     if not products:
         raise RuntimeError("products.json に商品が登録されていません。")
 
-    idx = 0
-    if os.path.exists(ROTATION_FILE):
-        try:
-            with open(ROTATION_FILE, encoding="utf-8") as f:
-                idx = int(f.read().strip())
-        except (ValueError, OSError):
-            idx = 0
+    # tried未設定の商品は、後方互換として「使ってみた」扱いにする
+    tried_pool = [p for p in products if p.get("tried", True)]
+    untried_pool = [p for p in products if not p.get("tried", True)]
 
-    product = products[idx % len(products)]
-    with open(ROTATION_FILE, "w", encoding="utf-8") as f:
-        f.write(str((idx + 1) % len(products)))
-    return product
+    state = _load_rotation_state()
+    desired_style = state.get("next_style", "tried")
+
+    if desired_style == "untried" and not untried_pool:
+        style = "tried"
+    elif desired_style == "tried" and not tried_pool:
+        style = "untried"
+    else:
+        style = desired_style
+
+    pool = tried_pool if style == "tried" else untried_pool
+    idx_key = "tried_idx" if style == "tried" else "untried_idx"
+    idx = state.get(idx_key, 0) % len(pool)
+    product = pool[idx]
+
+    state[idx_key] = (idx + 1) % len(pool)
+    # 両方のプールに商品がある時だけ、次回は逆のスタイルにする(厳密な交互ローテーション)。
+    # 片方が空のうちは、商品が揃うまで同じ希望スタイルを維持する。
+    if tried_pool and untried_pool:
+        state["next_style"] = "untried" if style == "tried" else "tried"
+    else:
+        state["next_style"] = desired_style
+    _save_rotation_state(state)
+
+    return product, style
 
 
 def youtube_embed_id(url: str) -> str:
@@ -167,9 +221,10 @@ def write_post(filename: str, front_matter: dict, body: str):
 
 
 def generate_product_post():
-    product = next_product()
+    product, style = next_product()
 
-    prompt = f"""あなたは健康・美容ジャンルのレビューライターです。
+    if style == "tried":
+        prompt = f"""あなたは健康・美容ジャンルのレビューライターです。
 以下の商品について、実際に使ってみたレビュー記事を書いてください。
 
 商品名: {product['name']}
@@ -187,6 +242,30 @@ def generate_product_post():
 - 1段落は2〜4文程度に収め、段落ごとに空行を入れて区切ること(スマホで読んだときに文字が詰まって見えないようにするため)
 - 出力形式: Markdownの本文のみ。前置きや説明文は一切つけないこと。
 """
+        disclaimer = "> ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。\n\n"
+    else:
+        prompt = f"""あなたは健康・美容ジャンルの情報ライターです。
+以下の商品について、公式サイトの情報をもとにした「気になる商品紹介」記事を書いてください。
+この商品はまだ実際に使用したことがない前提で書きます。
+
+商品名: {product['name']}
+特徴・メモ: {product['notes']}
+関連キーワード: {product['keywords']}
+
+条件:
+- 文字数: 900〜1300字程度
+- 構成: タイトル(# 見出し)、話題になっていて気になった、という導入、
+  商品や成分の説明、この商品の特徴(具体的に)、こんな人には気になる商品かも、
+  まだ実際に試したことはない旨を正直に伝える一文
+- 「実際に使ってみた」「使用感」「体感」など、あたかも自分で使用したかのような
+  一人称の体験談は絶対に書かないこと
+- 「特徴・メモ」の情報は、箇条書きの羅列にせず、自然な文章の中に溶け込ませること
+- 誇大な効果を断定せず、公式情報をもとにした紹介であることが伝わる書き方にすること
+- 1段落は2〜4文程度に収め、段落ごとに空行を入れて区切ること(スマホで読んだときに文字が詰まって見えないようにするため)
+- 出力形式: Markdownの本文のみ。前置きや説明文は一切つけないこと。
+"""
+        disclaimer = "> ※本記事はアフィリエイトリンクを含みます。まだ実際に試したことのない商品のため、公式サイトの情報をもとにした紹介記事です。\n\n"
+
     article_md = call_claude(prompt)
 
     title_match = re.search(r"^#\s+(.+)$", article_md, re.MULTILINE)
@@ -208,7 +287,7 @@ def generate_product_post():
     }
 
     body = "\n"
-    body += "> ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。\n\n"
+    body += disclaimer
     body += build_image_gallery(product.get("images", []))
     body += article_md.strip() + "\n\n"
 
