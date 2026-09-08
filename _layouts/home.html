@@ -16,7 +16,11 @@ layout: default
     <li style="margin-bottom: 1.5em; list-style: none;">
       <a href="{{ post.url | relative_url }}" style="display:flex; gap:1em; align-items:center; text-decoration:none; color:inherit;">
         {% if post.image %}
-        <img src="{{ post.image }}" alt="{{ post.title | escape }}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; flex-shrink:0;">
+        {% assign list_image = post.image %}
+        {% unless list_image contains 'http' %}
+          {% assign list_image = list_image | relative_url %}
+        {% endunless %}
+        <img src="{{ list_image }}" alt="{{ post.title | escape }}" style="width:120px; height:80px; object-fit:cover; border-radius:6px; flex-shrink:0;">
         {% endif %}
         <div>
           <span class="post-meta" style="color:#f0a868;">{{ post.date | date: "%b %-d, %Y" }}</span><br>
