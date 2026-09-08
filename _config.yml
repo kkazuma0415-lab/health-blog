@@ -4,6 +4,13 @@ theme: minima
 plugins:
   - jekyll-feed
 
+# ヘッダー右側のナビゲーションリンクを非表示にする設定。
+# 何も指定しないとJekyll/minimaの仕組み上、ホームページ(index.md)自身が
+# 「他のページへのリンク」として自動的にヘッダーの右側にも表示されてしまうため、
+# 実在しないダミーのパスを指定してリンクが1つも生成されないようにしている。
+header_pages:
+  - "_no_header_links"
+
 # URL設定(あとでGitHubユーザー名/リポジトリ名に合わせて自動反映されます)
 baseurl: "/health-blog"
 url: "https://kkazuma0415-lab.github.io"
