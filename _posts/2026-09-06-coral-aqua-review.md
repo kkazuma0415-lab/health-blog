@@ -11,11 +11,11 @@ date: "2026-09-06 12:00:00 +0900"
 > ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。
 
 <div style="display:flex; gap:0.75em; overflow-x:auto; padding:0.5em 0; margin-bottom:1.5em; scroll-snap-type:x mandatory;">
-<img src="/assets/images/coral-aqua-pour.jpg" alt="CORAL AQUAで浄水した水を注いでいるところ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
-<img src="/assets/images/coral-aqua-fridge.jpg" alt="冷蔵庫のサイドポケットに収まったCORAL AQUA" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
-<img src="/assets/images/coral-aqua-unit.jpg" alt="CORAL AQUA本体の外観" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
-<img src="/assets/images/coral-aqua-coral-material.jpg" alt="ろ材に使われているサンゴ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
-<img src="/assets/images/coral-aqua-carbon-material.jpg" alt="ろ材に使われているマイクロ活性炭" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/coral-aqua-pour.jpg" alt="CORAL AQUAで浄水した水を注いでいるところ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/coral-aqua-fridge.jpg" alt="冷蔵庫のサイドポケットに収まったCORAL AQUA" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/coral-aqua-unit.jpg" alt="CORAL AQUA本体の外観" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/coral-aqua-coral-material.jpg" alt="ろ材に使われているサンゴ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/coral-aqua-carbon-material.jpg" alt="ろ材に使われているマイクロ活性炭" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
 </div>
 
 コップに水道水を注いだ瞬間、ふわっと鼻に抜ける塩素のニオイ。気にしないようにしていても、麦茶や白湯を作るたびに「このニオイさえなければ」と思っていました。ペットボトルの水を箱買いする生活にも正直疲れてきたので、今回は卓上ポット型の浄水器「CORAL AQUA」を試してみました。
