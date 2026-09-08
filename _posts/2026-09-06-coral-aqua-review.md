@@ -56,6 +56,6 @@ CORAL AQUAの特徴は、ろ材にマイクロ活性炭とサンゴを組み合�
 |---|---|
 | 商品名 | 浄水器CORAL AQUA本体 |
 | 定価 | 9,900円（税込） |
-| 会員価格 | 7,920円（税込） |
+| 会員価格 | 9,405円（税込）（会員登録で5%OFF） |
 
 **→ [公式サイトで詳しく見る](https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9d8503)**
