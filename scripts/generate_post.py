@@ -131,24 +131,63 @@ def _save_rotation_state(state: dict):
         json.dump(state, f, ensure_ascii=False)
 
 
+def _product_already_reviewed(product: dict) -> bool:
+    """この商品(affiliate_urlで判定)について、記事が既に_postsに存在するか確認する。
+
+    タイトルはAIが毎回変えて生成するため、商品名やタイトルの一致では
+    重複を検出できない。affiliate_url(product_link)は記事のfront matterに
+    必ず埋め込まれるため、これが一致する記事の有無で「この商品は既にレビュー
+    済みかどうか」を判定する。これにより、一度レビューした商品を自動生成が
+    新しい創作エピソードで際限なく再レビューしてしまうのを防ぐ。
+    """
+    target_url = product.get("affiliate_url", "")
+    if not target_url:
+        return False
+    posts_dir = os.path.join(os.path.dirname(__file__), "..", "_posts")
+    if not os.path.isdir(posts_dir):
+        return False
+    for name in os.listdir(posts_dir):
+        if not name.endswith(".md"):
+            continue
+        try:
+            with open(os.path.join(posts_dir, name), encoding="utf-8") as f:
+                content = f.read()
+        except OSError:
+            continue
+        if target_url in content:
+            return True
+    return False
+
+
 def next_product() -> tuple:
-    """products.jsonから商品を1つ選ぶ。
+    """products.jsonから、まだ記事になっていない商品を1つ選ぶ。
 
-    「使ってみた」記事(tried: true)と「気になる商品紹介」記事(tried: false)を、
-    商品紹介の投稿ごとに必ず交互に出すようローテーションする。
-    どちらか一方のプールが空(該当する商品がまだ無い)場合は、
-    商品が揃うまで存在する方のスタイルを使い続ける。
+    既に_postsに記事がある商品(affiliate_urlの一致で判定)は選択対象から除外する
+    (同じ商品を使い回しの創作エピソードで何度も再レビューしないため)。
 
-    戻り値: (商品dict, スタイル文字列 "tried" または "untried")
+    残った未レビューの商品の中から、「使ってみた」記事(tried: true)と
+    「気になる商品紹介」記事(tried: false)を、商品紹介の投稿ごとに
+    必ず交互に出すようローテーションする。どちらか一方のプールが空
+    (該当する未レビュー商品がまだ無い)場合は、商品が揃うまで存在する
+    方のスタイルを使い続ける。
+
+    未レビューの商品が1つも無い場合は (None, None) を返す
+    (=新しい商品が追加されるまで、商品紹介モードの日は記事を生成しない)。
+
+    戻り値: (商品dict, スタイル文字列 "tried" または "untried") または (None, None)
     """
     with open(PRODUCTS_FILE, encoding="utf-8") as f:
         products = json.load(f)
     if not products:
         raise RuntimeError("products.json に商品が登録されていません。")
 
+    eligible = [p for p in products if not _product_already_reviewed(p)]
+    if not eligible:
+        return None, None
+
     # tried未設定の商品は、後方互換として「使ってみた」扱いにする
-    tried_pool = [p for p in products if p.get("tried", True)]
-    untried_pool = [p for p in products if not p.get("tried", True)]
+    tried_pool = [p for p in eligible if p.get("tried", True)]
+    untried_pool = [p for p in eligible if not p.get("tried", True)]
 
     state = _load_rotation_state()
     desired_style = state.get("next_style", "tried")
@@ -161,6 +200,9 @@ def next_product() -> tuple:
         style = desired_style
 
     pool = tried_pool if style == "tried" else untried_pool
+    if not pool:
+        return None, None
+
     idx_key = "tried_idx" if style == "tried" else "untried_idx"
     idx = state.get(idx_key, 0) % len(pool)
     product = pool[idx]
@@ -222,6 +264,9 @@ def write_post(filename: str, front_matter: dict, body: str):
 
 def generate_product_post():
     product, style = next_product()
+    if product is None:
+        print("紹介できる新しい商品(未レビューの商品)が products.json にありません。今日は商品紹介記事の生成をスキップします。")
+        return
 
     if style == "tried":
         prompt = f"""あなたは健康・美容ジャンルのレビューライターです。
