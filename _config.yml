@@ -3,6 +3,7 @@ description: 毎日の健康習慣を発信するブログ
 theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-sitemap
 
 # ヘッダー右側のナビゲーションリンクを非表示にする設定。
 # 何も指定しないとJekyll/minimaの仕組み上、ホームページ(index.md)自身が
