@@ -230,6 +230,29 @@ def build_slug(title: str) -> str:
     return slug or "post"
 
 
+def extract_description(article_md: str, max_len: int = 120) -> str:
+    """記事本文からmeta description用の要約テキストを作る。
+
+    front matterのdescriptionには、商品記事の場合ここでは「※本記事は
+    アフィリエイトリンクを含みます...」という免責の定型文ではなく、
+    実際の記事内容の書き出しを使いたい。そのため見出し・引用(免責文)・
+    強調やリンクなどのMarkdown記法を取り除いた上で、先頭からmax_len
+    文字程度に丸める。
+    """
+    text = article_md
+    text = re.sub(r"^#+\s+.*$", "", text, flags=re.MULTILINE)      # 見出し行を除去
+    text = re.sub(r"^>\s?.*$", "", text, flags=re.MULTILINE)        # 引用行(免責文など)を除去
+    text = re.sub(r"^-{3,}$", "", text, flags=re.MULTILINE)         # 区切り線を除去
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)                    # 強調記法を除去
+    text = re.sub(r"\[(.+?)\]\(.+?\)", r"\1", text)                 # リンク記法を除去
+    text = re.sub(r"^[-*]\s+", "", text, flags=re.MULTILINE)        # 箇条書き記号を除去
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > max_len:
+        text = text[:max_len].rstrip() + "…"
+    # front matterはダブルクォートで囲むため、本文中の"は"に置き換えて壊れないようにする
+    return text.replace('"', "'")
+
+
 def build_image_gallery(images: list) -> str:
     """複数画像を横スクロールで見られるギャラリーのHTMLを組み立てる。"""
     if not images:
@@ -329,6 +352,7 @@ def generate_product_post():
         "affiliate": True,
         "product_link": product["affiliate_url"],
         "image": (product.get("images") or [None])[0],
+        "description": extract_description(article_md),
     }
 
     body = "\n"
@@ -392,6 +416,7 @@ def generate_health_post():
         "date": f"{date_str} 07:00:00 +0900",
         "category": "health",
         "image": image_url or None,
+        "description": extract_description(article_md),
     }
 
     write_post(filename, front_matter, "\n" + article_md.strip() + "\n")
