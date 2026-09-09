@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kkazuma0415-lab.github.io/health-blog/sitemap.xml
+
