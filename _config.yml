@@ -21,3 +21,6 @@ baseurl: "/health-blog"
 url: "https://kkazuma0415-lab.github.io"
 
 markdown: kramdown
+
+# Google Analytics 4 (SEO/アクセス解析)
+google_analytics: "G-SFS0NR7NFM"
