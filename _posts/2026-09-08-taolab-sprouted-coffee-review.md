@@ -1,7 +1,7 @@
 ---
 layout: post
 category: review
-title: "発芽オーガニックコーヒーを飲んでみた 角の取れたまろやかな一杯に驚いた"
+title: "TaoLab(タオラボ)発芽オーガニックコーヒーの口コミレビュー｜角の取れたまろやかな一杯を飲んでみた"
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3a2998203"
 image: "/assets/images/taolab-coffee-package.jpg"
@@ -14,6 +14,9 @@ description: "コーヒーで胃が痛くなったり、カフェインで目が
 <div style="display:flex; gap:0.75em; overflow-x:auto; padding:0.5em 0; margin-bottom:1.5em; scroll-snap-type:x mandatory;">
 <img src="/health-blog/assets/images/taolab-coffee-package.jpg" alt="TaoLab 発芽オーガニックコーヒー ストロング 粉のパッケージ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
 <img src="/health-blog/assets/images/taolab-coffee-bag.jpg" alt="TaoLab 発芽オーガニックコーヒーの中袋" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/taolab-coffee-banner.jpg" alt="TaoLab 発芽オーガニックコーヒーのバナー画像" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/taolab-coffee-studio1.jpg" alt="TaoLab 発芽オーガニックコーヒーの豆のクローズアップ" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
+<img src="/health-blog/assets/images/taolab-coffee-studio2.jpg" alt="TaoLab 発芽オーガニックコーヒーのイメージ写真" style="height:220px; width:auto; border-radius:8px; flex-shrink:0; scroll-snap-align:start;">
 </div>
 
 コーヒーは好きだけど、空腹時に飲むと胃が痛くなったり、夜に飲むと目が冴えすぎたりすることはありませんか。
