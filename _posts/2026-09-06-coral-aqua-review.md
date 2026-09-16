@@ -6,6 +6,7 @@ affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9d8503"
 image: "/assets/images/coral-aqua-pour.jpg"
 date: "2026-09-06 12:00:00 +0900"
+description: "コップの水道水から漂う塩素のニオイが気になっていませんか。マイクロ活性炭とサンゴのWろ過が特徴の卓上型浄水器「CORAL AQUA」を実際に使ってみたので、味や使い心地の変化を紹介します。"
 ---
 
 > ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。
