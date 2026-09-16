@@ -47,6 +47,8 @@ jobs:
           bundler-cache: true
 
       - name: Jekyllでビルド
+        env:
+          JEKYLL_ENV: production
         run: bundle exec jekyll build
 
       - name: GitHub Pagesの準備
