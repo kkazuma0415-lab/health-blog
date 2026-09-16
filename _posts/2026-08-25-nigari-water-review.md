@@ -1,7 +1,7 @@
 ---
 layout: post
 category: review
-title: "お風呂でデトックス？にがり入浴の効果と、実際に試してみた感想"
+title: "ICHI にがりウォーターの口コミレビュー｜にがり入浴の効果を実際に試してみた"
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9c850c"
 image: "/assets/images/nigari-water-package-cropped.jpg"
