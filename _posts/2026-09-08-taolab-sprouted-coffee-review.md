@@ -6,6 +6,7 @@ affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3a2998203"
 image: "/assets/images/taolab-coffee-package.jpg"
 date: "2026-09-08 13:00:00 +0900"
+description: "コーヒーで胃が痛くなったり、カフェインで目が冴えすぎたりする悩みはありませんか。豆を発芽させてから焙煎する珍しい製法の「TaoLab 発芽オーガニックコーヒー」を実際に飲んでみた感想を紹介します。"
 ---
 
 > ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。
