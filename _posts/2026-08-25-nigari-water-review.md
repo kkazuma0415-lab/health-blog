@@ -5,6 +5,7 @@ title: "お風呂でデトックス？にがり入浴の効果と、実際に試
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9c850c"
 image: "/assets/images/nigari-water-package-cropped.jpg"
+description: "「ただお湯につかるだけ」で満足していませんか。天然にがりを使った入浴用ウォーター「ICHI にがりウォーター」を実際にお風呂で試してみたので、使用感や良かった点・気になった点を正直に紹介します。"
 ---
 
 > ※本記事はアフィリエイトリンクを含みます。紹介する商品は実際に使用した上での個人的な感想です。
