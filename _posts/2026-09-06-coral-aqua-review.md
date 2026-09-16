@@ -1,7 +1,7 @@
 ---
 layout: post
 category: review
-title: "浄水器「CORAL AQUA」を使ってみた実感レビュー 塩素臭のない水はここまで変わる"
+title: "CORAL AQUA(コーラルアクア)の口コミレビュー｜卓上型浄水器で塩素臭のない水に変わった話"
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ad9d8503"
 image: "/assets/images/coral-aqua-pour.jpg"
