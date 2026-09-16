@@ -1,7 +1,7 @@
 ---
 layout: post
 category: review
-title: "小豆島の老舗が守る「マルシマ純正醤油」を使ってみた"
+title: "マルシマ純正醤油(濃口900ml)の口コミレビュー｜小豆島の老舗醤油を実際に使ってみた"
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ab9e8303"
 image: "/assets/images/marushima-soy-sauce.jpg"
