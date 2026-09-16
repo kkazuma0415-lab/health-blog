@@ -5,7 +5,7 @@ title: "話題の「水溶性ケイ素」って何？UMO 輝石が気になっ�
 affiliate: true
 product_link: "https://organic-ripple.com/index.cgi?code=qrintroducer2&q=86078437ca14a3ac9b8303"
 image: "/assets/images/silica-umo-package.jpg"
-date: "2026-09-15 10:00:00 +0900"
+date: "2026-09-19 10:00:00 +0900"
 description: "美容や健康の話題で「ケイ素(シリカ)」という成分の名前を見かけることが増えてきました。今回はオーガニックりっぷるのラインナップの中から、水溶性ケイ素「UMO 輝石」という商品が気になったので、公式情報をもとに紹介してみます。"
 ---
 
